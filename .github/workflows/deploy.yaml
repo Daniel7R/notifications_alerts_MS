@@ -17,7 +17,7 @@ jobs:
               with:
                 dotnet-version: 8.x
             - name: "Restore dependencies 🗳️"
-              run: dotnet restore ./NotificationsAndAlerts/NotificationsAndAlerts.csproj
+              run: dotnet restore ./notifications_alerts_MS/NotificationsAndAlerts.csproj
             - name: "Build project 🏗️👷‍♀️"
               run: dotnet build ./NotificationsAndAlerts/NotificationsAndAlerts.csproj --no-restore
             - name: "Run Tests ✅✅"
