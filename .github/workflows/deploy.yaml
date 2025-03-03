@@ -7,18 +7,18 @@ on:
             - main
 
 jobs:
-    list-files:
-        runs-on: ubuntu-latest
-        outputs:
-            paths: ${{ steps.list-files.outputs.paths }}
-        steps:
-            - name: List Files
-              id: list-files
-              uses: mirko-felice/list-files-action@v3.0.5
-              with:
-                repo: ${{ github.repository }}
-                ref: ${{ github.ref }}
-                path: "."
+    # list-files:
+    #     runs-on: ubuntu-latest
+    #     outputs:
+    #         paths: ${{ steps.list-files.outputs.paths }}
+    #     steps:
+    #         - name: List Files
+    #           id: list-files
+    #           uses: mirko-felice/list-files-action@v3.0.5
+    #           with:
+    #             repo: ${{ github.repository }}
+    #             ref: ${{ github.ref }}
+    #             path: "."
     build:
         runs-on: ubuntu-latest
         steps:
@@ -29,8 +29,8 @@ jobs:
               with:
                 dotnet-version: 8.x
             - name: "Restore dependencies 🗳️"
-              run: dotnet restore ./notifications_alerts_MS/NotificationsAndAlerts.csproj
+              run: dotnet restore ./NotificationsAndAlerts.csproj
             - name: "Build project 🏗️👷‍♀️"
-              run: dotnet build ./NotificationsAndAlerts/NotificationsAndAlerts.csproj --no-restore
+              run: dotnet build ./NotificationsAndAlerts.csproj --no-restore
             - name: "Run Tests ✅✅"
-              run: dotnet test ./NotificationsAndAlerts/NotificationsAndAlerts.csproj --no-build --verbosity normal
+              run: dotnet test ./NotificationsAndAlerts.csproj --no-build --verbosity normal
