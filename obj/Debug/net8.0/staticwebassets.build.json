@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "JkfBQ0TGXb36Zz09omKGPGxHk3OFNx5uH56ICSDH6mc=",
+  "Source": "NotificationsAndAlerts",
+  "BasePath": "_content/NotificationsAndAlerts",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
