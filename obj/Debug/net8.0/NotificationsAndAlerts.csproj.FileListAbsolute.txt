@@ -7,6 +7,7 @@ C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bi
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\NotificationsAndAlerts.dll
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\NotificationsAndAlerts.pdb
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\DnsClient.dll
+C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\DotNetEnv.dll
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\Microsoft.OpenApi.dll
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\MongoDB.Bson.dll
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\MongoDB.Driver.dll
@@ -14,6 +15,7 @@ C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bi
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\RabbitMQ.Client.dll
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\SharpCompress.dll
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\Snappier.dll
+C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\Sprache.dll
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
@@ -25,6 +27,7 @@ C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\ob
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\obj\Debug\net8.0\NotificationsAndAlerts.csproj.CoreCompileInputs.cache
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\obj\Debug\net8.0\NotificationsAndAlerts.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\obj\Debug\net8.0\NotificationsAndAlerts.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\obj\Debug\net8.0\NotificationsAndAlerts.sourcelink.json
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\obj\Debug\net8.0\staticwebassets\msbuild.NotificationsAndAlerts.Microsoft.AspNetCore.StaticWebAssets.props

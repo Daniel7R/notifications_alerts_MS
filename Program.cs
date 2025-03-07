@@ -4,10 +4,17 @@ using System.Net;
 using System.Text;
 using NotificationsAndAlerts.Application.Interfaces;
 using NotificationsAndAlerts.Infrastructure.EventBus;
+using DotNetEnv;
+using NotificationsAndAlerts.Application.Handlers;
+using NotificationsAndAlerts.Application.Services;
+using NotificationsAndAlerts.Application.Configs;
 
+Env.Load();
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -16,9 +23,17 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<MongoDbContext>();
 
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();
+
+builder.Services.Configure<SmtpConfig>(builder.Configuration.GetSection("mail"));
 builder.Services.Configure<RabbitMQSettings>(builder.Configuration.GetSection("RabbitMQ"));
+builder.Services.AddScoped<SendEmailNotificationHandler>();
 builder.Services.AddSingleton<IEventBusConsumerAsync, EventBusConsumerAsync>();
+builder.Services.AddSingleton<IEventBusProducer, EventBusProducer>();
+
 builder.Services.AddHostedService<EventBusConsumerAsync>();
+builder.Services.AddHostedService<EventBusProducer>();
 
 var app = builder.Build();
 
@@ -36,29 +51,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-//Run();
 app.Run();
-
-
-static async Task Run()
-{
-    var smtpClient = new SmtpClient("smtp.gmail.com")
-    {
-        Port = 587,
-        Credentials = new NetworkCredential("dr734659@gmail.com", "kmsm jpap lurd yyqm"),
-        EnableSsl = true
-    };
-
-    var mailMessage = new MailMessage
-    {
-        From = new MailAddress("dr734659@gmail.com"),
-        Subject = "Correo de prueba con Gmail",
-        Body = "Este es un correo de prueba usando Gmail SMTP.",
-        IsBodyHtml = false
-    };
-
-    mailMessage.To.Add("carlosriverarangel7@gmail.com");
-    smtpClient.Send(mailMessage);
-
-    Console.WriteLine("Correo enviado con éxito.");
-}
