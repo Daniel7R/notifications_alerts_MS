@@ -34,7 +34,7 @@ namespace NotificationsAndAlerts.Application.Services
                     From = new MailAddress(_smtpConfig.USER_EMAIL),
                     Subject = request.Subject,
                     Body = request.Body,
-                    IsBodyHtml = false
+                    IsBodyHtml = true
                 };
 
                 mailMessage.To.Add(userInfo.Email);

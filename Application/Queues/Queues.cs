@@ -7,6 +7,7 @@
 
         //tournament
         public const string SEND_EMAIL_CREATE_TOURNAMENT = "tournament.created";
+        public const string SEND_EMAIL_UPDATE_TOURNAMENT = "tournament.update";
 
         //Payments
         public const string SEND_EMAIL_NOTIFICATION_PAYMENT = "payment.notification";
