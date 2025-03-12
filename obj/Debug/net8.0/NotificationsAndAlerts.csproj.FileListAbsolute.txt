@@ -42,3 +42,5 @@ C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\ob
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\obj\Debug\net8.0\NotificationsAndAlerts.pdb
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\obj\Debug\net8.0\NotificationsAndAlerts.genruntimeconfig.cache
 C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\obj\Debug\net8.0\ref\NotificationsAndAlerts.dll
+C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\bin\Debug\net8.0\NotificationsAndAlerts.xml
+C:\Users\dr734\OneDrive\Escritorio\assessment\E-Sports\NotificationsAndAlerts\obj\Debug\net8.0\NotificationsAndAlerts.xml

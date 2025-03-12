@@ -24,7 +24,7 @@ namespace NotificationsAndAlerts.Infrastructure.EventBus
                 throw new FileNotFoundException("PFX certificate not found");
             }
 
-            var factory = new ConnectionFactory
+          var factory = new ConnectionFactory
             {
                 HostName = _rabbitmqSettings.Host,
                 UserName = _rabbitmqSettings.Username,
@@ -51,7 +51,7 @@ namespace NotificationsAndAlerts.Infrastructure.EventBus
                     _connection = await factory.CreateConnectionAsync();
                     _channel = await _connection.CreateChannelAsync();
                 }
-                catch
+                catch(Exception ex)
                 {
                     await Task.Delay(TimeSpan.FromSeconds(5));
                 }
