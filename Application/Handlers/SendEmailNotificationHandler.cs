@@ -30,7 +30,7 @@ namespace NotificationsAndAlerts.Application.Handlers
             }
         }
 
-        public async Task HandleCreationTournament(EmailNotification payload)
+        public async Task HandleBulk (EmailNotification payload)
         {
             try
             {

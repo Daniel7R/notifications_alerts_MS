@@ -76,7 +76,16 @@ namespace NotificationsAndAlerts.Infrastructure.EventBus
                     using var scope = _scopeFactory.CreateScope();
 
                     var handler = scope.ServiceProvider.GetRequiredService<SendEmailNotificationHandler>();
-                    await handler.HandleCreationTournament(payload);
+                    await handler.HandleBulk(payload);
+
+                });
+
+                await RegisterEventHandlerAsync<EmailBulkNotificationRequest>(Queues.REMINDER, async (payload) =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+
+                    var handler = scope.ServiceProvider.GetRequiredService<SendEmailNotificationHandler>();
+                    await handler.HandleBulk(payload);
 
                 });
 
@@ -85,7 +94,7 @@ namespace NotificationsAndAlerts.Infrastructure.EventBus
                     using var scope = _scopeFactory.CreateScope();
 
                     var handler = scope.ServiceProvider.GetRequiredService<SendEmailNotificationHandler>();
-                    await handler.HandleCreationTournament(payload);
+                    await handler.HandleBulk(payload);
 
                 });
 

@@ -37,7 +37,7 @@ namespace NotificationsAndAlerts.Infrastructure.EventBus
                 Ssl = new SslOption
                 {
                     Enabled = true,
-                    ServerName = _rabbitmqSettings.ServerName,
+                    ServerName =_rabbitmqSettings.ServerName,
                     CertPath = pfxCertPath,
                     CertPassphrase = _rabbitmqSettings.CertPassphrase,
                     Version = System.Security.Authentication.SslProtocols.Tls12
