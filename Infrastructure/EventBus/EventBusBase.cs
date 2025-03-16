@@ -31,7 +31,7 @@ namespace NotificationsAndAlerts.Infrastructure.EventBus
                 Password = _rabbitmqSettings.Password,
                 Port = _rabbitmqSettings.Port,
                 AutomaticRecoveryEnabled = true,
-                VirtualHost= "ngimsipu",
+                VirtualHost= _rabbitmqSettings.Username,
                 NetworkRecoveryInterval = TimeSpan.FromSeconds(5),
                 RequestedHeartbeat = TimeSpan.FromSeconds(30),
                 ContinuationTimeout = TimeSpan.FromSeconds(30),
