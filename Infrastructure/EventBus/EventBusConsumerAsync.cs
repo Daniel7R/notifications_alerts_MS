@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using NotificationsAndAlerts.Application.Handlers;
 using NotificationsAndAlerts.Application.Interfaces;
 using NotificationsAndAlerts.Application.Messages;
 using NotificationsAndAlerts.Application.Queues;
@@ -9,21 +10,20 @@ using System.Text;
 
 namespace NotificationsAndAlerts.Infrastructure.EventBus
 {
-    public class EventBusConsumerAsync : BackgroundService, IEventBusConsumerAsync, IAsyncDisposable
+    public class EventBusConsumerAsync : EventBusBase, IEventBusConsumerAsync
     {
-        private IConnection _connection;
-        private IChannel _channel;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly RabbitMQSettings _rabbitmqSettings;
         private readonly ILogger<EventBusConsumerAsync> _logger;
         private readonly Dictionary<string, Func<string, Task>> _eventHandlers;
 
-        public EventBusConsumerAsync(IServiceScopeFactory serviceScopeFactory, IOptions<RabbitMQSettings> options, ILogger<EventBusConsumerAsync> logger)
+        public EventBusConsumerAsync(IServiceScopeFactory serviceScopeFactory, IOptions<RabbitMQSettings> options, ILogger<EventBusConsumerAsync> logger): base(options)
         {
             _rabbitmqSettings = options.Value;
             _scopeFactory = serviceScopeFactory;
             _eventHandlers = new();
             _logger = logger;
+            InitializeAsync().GetAwaiter().GetResult();
         }
 
         public static async Task<EventBusConsumerAsync> CreateAsync(IServiceScopeFactory serviceScopeFactory, IOptions<RabbitMQSettings> rabbitMQSettings, ILogger<EventBusConsumerAsync> logger)
@@ -35,43 +35,7 @@ namespace NotificationsAndAlerts.Infrastructure.EventBus
 
         private async Task InitializeAsync()
         {
-            var basePath = AppContext.BaseDirectory;
-            var pfxCerPath = Path.Combine(basePath, "Infrastructure", "Security", _rabbitmqSettings.CertFile);
-            if (!File.Exists(pfxCerPath)) throw new FileNotFoundException("PFX certificate not found");
-
-            var factory = new ConnectionFactory
-            {
-                HostName = _rabbitmqSettings.Host,
-                UserName = _rabbitmqSettings.Username,
-                Password = _rabbitmqSettings.Password,
-                Port = _rabbitmqSettings.Port,
-                AutomaticRecoveryEnabled = true,
-                NetworkRecoveryInterval = TimeSpan.FromSeconds(5),
-                RequestedHeartbeat = TimeSpan.FromSeconds(30),
-                ContinuationTimeout = TimeSpan.FromSeconds(30),
-                Ssl = new SslOption
-                {
-                    Enabled = true,
-                    ServerName = _rabbitmqSettings.ServerName,
-                    CertPath = pfxCerPath,
-                    CertPassphrase = _rabbitmqSettings.CertPassphrase,
-                    Version = System.Security.Authentication.SslProtocols.Tls12
-                }
-            };
-
-            while (_connection == null || !_connection.IsOpen || _channel == null || _channel.IsClosed)
-            {
-                try
-                {
-                    _connection = await factory.CreateConnectionAsync();
-                    _channel = await _connection.CreateChannelAsync();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($" Error with initialize async {ex.Message}");
-                    await Task.Delay(TimeSpan.FromSeconds(5));
-                }
-            }
+            await base.InitializeAsync();
 
             RegisterHandlers();
         }
@@ -79,11 +43,70 @@ namespace NotificationsAndAlerts.Infrastructure.EventBus
         {
             _ = Task.Run(async () =>
             {
-                await RegisterEventHandlerAsync<EmailNotificationRequest>(Queues.SEND_EMAIL_NOTIFICATION, async (payload) =>
+                //send email notification 
+                await RegisterEventHandlerAsync<EmailNotificationRequest>(Queues.SEND_EMAIL_NOTIFICATION_SALE, async (payload) =>
                 {
-                    _logger.LogInformation($"Received request for sending email {payload}");
+                    using var scope = _scopeFactory.CreateScope();
+
+                    var handler = scope.ServiceProvider.GetRequiredService<SendEmailNotificationHandler>();
+
+                    await handler.HandleAsync(payload);
+
+                    //_logger.LogInformation($"Received request for sending email {payload}");
+                });
+
+                await RegisterEventHandlerAsync<EmailNotificationRequest>(Queues.SEND_EMAIL_NOTIFICATION_PAYMENT, async(payload) =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+
+                    var handler = scope.ServiceProvider.GetRequiredService<SendEmailNotificationHandler>();
+
+                    await handler.HandleAsync(payload);
+                });
+
+                await RegisterEventHandlerAsync<EmailNotificationRequest>(Queues.SEND_EMAIL_DONATION, async (payload) => {
+                    using var scope = _scopeFactory.CreateScope();
+                    var handler = scope.ServiceProvider.GetRequiredService<SendEmailNotificationHandler>();
+
+                    await handler.HandleAsync(payload);
+                });
+                //email to send info when tournament is created
+                await RegisterEventHandlerAsync<EmailBulkNotificationRequest>(Queues.SEND_EMAIL_CREATE_TOURNAMENT, async (payload) =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+
+                    var handler = scope.ServiceProvider.GetRequiredService<SendEmailNotificationHandler>();
+                    await handler.HandleBulk(payload);
 
                 });
+
+                await RegisterEventHandlerAsync<EmailBulkNotificationRequest>(Queues.REMINDER, async (payload) =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+
+                    var handler = scope.ServiceProvider.GetRequiredService<SendEmailNotificationHandler>();
+                    await handler.HandleBulk(payload);
+
+                });
+
+                await RegisterEventHandlerAsync<EmailBulkNotificationRequest>(Queues.SEND_EMAIL_UPDATE_TOURNAMENT, async (payload) =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+
+                    var handler = scope.ServiceProvider.GetRequiredService<SendEmailNotificationHandler>();
+                    await handler.HandleBulk(payload);
+
+                });
+
+                await RegisterEventHandlerAsync<EmailBulkNotificationRequest>(Queues.SEND_EMAIL_MATCH_WINNER, async (payload) =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+
+                    var handler = scope.ServiceProvider.GetRequiredService<SendEmailNotificationHandler>();
+                    await handler.HandleBulk(payload);
+
+                });
+
             });
         }
 
@@ -132,31 +155,6 @@ namespace NotificationsAndAlerts.Infrastructure.EventBus
         {
             if (_connection == null || !_connection.IsOpen || _channel == null || !_channel.IsOpen)
                 await InitializeAsync();
-        }
-
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                if (_connection == null || !_connection.IsOpen || _channel == null || _channel.IsClosed) await InitializeAsync();
-
-                try
-                {
-                    await Task.Delay(500, stoppingToken);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Error executing async {ex.Message}");
-                    await InitializeAsync();
-                }
-            }
-        }
-
-
-        public async ValueTask DisposeAsync()
-        {
-            if (_connection != null) await _connection.DisposeAsync();
-            if (_channel != null) await _channel.DisposeAsync();
         }
     }
 }
