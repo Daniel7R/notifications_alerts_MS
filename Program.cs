@@ -1,4 +1,3 @@
-using NotificationsAndAlerts.Infrastructure.Data;
 using System.Net.Mail;
 using System.Net;
 using System.Text;
@@ -10,7 +9,7 @@ using NotificationsAndAlerts.Application.Services;
 using NotificationsAndAlerts.Application.Configs;
 
 Env.Load();
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);  
 builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
@@ -20,8 +19,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddSingleton<MongoDbContext>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();

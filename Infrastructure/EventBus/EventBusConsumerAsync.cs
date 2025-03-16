@@ -98,6 +98,15 @@ namespace NotificationsAndAlerts.Infrastructure.EventBus
 
                 });
 
+                await RegisterEventHandlerAsync<EmailBulkNotificationRequest>(Queues.SEND_EMAIL_MATCH_WINNER, async (payload) =>
+                {
+                    using var scope = _scopeFactory.CreateScope();
+
+                    var handler = scope.ServiceProvider.GetRequiredService<SendEmailNotificationHandler>();
+                    await handler.HandleBulk(payload);
+
+                });
+
             });
         }
 
