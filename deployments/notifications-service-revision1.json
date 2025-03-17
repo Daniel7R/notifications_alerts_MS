@@ -1,0 +1,136 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-2:692859914395:task-definition/notifications-service:1",
+    "containerDefinitions": [
+        {
+            "name": "notifications-container",
+            "image": "692859914395.dkr.ecr.us-east-2.amazonaws.com/e-sports/notifications:latest",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "name": "notifications-container-8081-tcp",
+                    "containerPort": 8081,
+                    "hostPort": 8081,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                  {
+                    "name": "JWT_SECRET",
+                    "value": "${JWT_SECRET}"
+                  },
+                  {
+                    "name": "JWT_ISSUER",
+                    "value": "${JWT_ISSUER}"
+                  },
+                  {
+                    "name": "JWT_AUDIENCE",
+                    "value": "${JWT_AUDIENCE}"
+                  },
+                  {
+                    "name": "RABBIT_HOST",
+                    "value": "${HOST_RABBIT}"
+                  },
+                  {
+                    "name": "RABBIT_USERNAME",
+                    "value": "${USERNAME_RABBIT}"
+                  },
+                  {
+                    "name": "RABBIT_PASSWORD",
+                    "value": "${PASSWORD_RABBIT}"
+                  },
+                  {
+                    "name": "MAIL_CLIENT",
+                    "value": "${MAIL_CLIENT}"
+                  },
+                  {
+                    "name": "MAIL_PORT",
+                    "value": "${MAIL_PORT}"
+                  },
+                  {
+                    "name": "USER_EMAIL",
+                    "value": "${USER_EMAIL}"
+                  },
+                  {
+                    "name": "PASSWORD_APP",
+                    "value": "${PASSWORD_APP}"
+                  }
+            ],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "ulimits": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/notifications-service",
+                    "mode": "non-blocking",
+                    "awslogs-create-group": "true",
+                    "max-buffer-size": "25m",
+                    "awslogs-region": "us-east-2",
+                    "awslogs-stream-prefix": "ecs"
+                },
+                "secretOptions": []
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "notifications-service",
+    "taskRoleArn": "arn:aws:iam::692859914395:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::692859914395:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "revision": 1,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.28"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "3072",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "registeredAt": "2025-03-17T21:21:31.759Z",
+    "registeredBy": "arn:aws:iam::692859914395:user/daniel",
+    "enableFaultInjection": false,
+    "tags": []
+}

@@ -22,3 +22,166 @@ jobs:
               run: dotnet build ./NotificationsAndAlerts.csproj --no-restore
             - name: "Run Tests ✅✅"
               run: dotnet test ./NotificationsAndAlerts.csproj --no-build --verbosity normal
+    
+    publish:
+        needs: build
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        runs-on: ubuntu-latest
+        steps:
+          - name: 🛠️ Checkout Repository
+            uses: actions/checkout@v4
+
+          - name: ⚙️ Setup .NET 8 SDK
+            uses: actions/setup-dotnet@v4
+            with:
+              dotnet-version: 8.x
+          - name: "⬆️Load Env"
+            run: |
+              echo "APISettings__JwtOptions__Secret=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+              echo "APISettings__JwtOptions__Issuer=${{ secrets.JWT_ISSUER }}" >> $GITHUB_ENV
+              echo "APISettings__JwtOptions__Audience=${{ secrets.JWT_AUDIENCE }}" >> $GITHUB_ENV
+              echo "RabbitMQ__Host=${{ secrets.HOST_RABBIT }}" >> $GITHUB_ENV
+              echo "RabbitMQ__Port=${{ secrets.PORT_RABBIT }}" >> $GITHUB_ENV
+              echo "RabbitMQ__Username=${{ secrets.USERNAME_RABBIT }}" >> $GITHUB_ENV
+              echo "RabbitMQ__Password=${{ secrets.PASSWORD_RABBIT }}" >> $GITHUB_ENV
+              echo "mail__SMTP_CLIENT=${{ secrets.MAIL_CLIENT }}" >> $GITHUB_ENV
+              echo "mail__PORT=${{ secrets.MAIL_PORT }}" >> $GITHUB_ENV
+              echo "mail__USER_EMAIL=${{ secrets.USER_EMAIL }}" >> $GITHUB_ENV
+              echo "mail__PASSWORD_APP=${{ secrets.PASSWORD_APP }}" >> $GITHUB_ENV
+            env:
+              DB_USERS: ${{ secrets.DB_USERS }}
+              JWT_SECRET: ${{ secrets.JWT_SECRET }}
+              JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
+              JWT_AUDIENCE: ${{ secrets.JWT_AUDIENCE }}
+              HOST_RABBIT: ${{ secrets.HOST_RABBIT }}
+              USERNAME_RABBIT: ${{ secrets.USERNAME_RABBIT }}
+              PASSWORD_RABBIT: ${{ secrets.PASSWORD_RABBIT }}
+              MAIL_CLIENT: ${{ secrets.MAIL_CLIENT }}
+              MAIL_PORT: ${{ secrets.MAIL_PORT }}
+              USER_EMAIL: ${{ secrets.USER_EMAIL }}
+              PASSWORD_APP: ${{ secrets.PASSWORD_APP }}
+          - name: 🔐 Configure AWS Credentials
+            uses: aws-actions/configure-aws-credentials@v4
+            with:
+              aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+              aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+              aws-region: us-east-2
+        
+          - name: 🔄 Replace Env Variables in Task Definition
+            run: |
+
+              ecs_task_def=$(cat ./deployments/notifications-service-revision1.json)
+              ecs_task_def=$(echo "$ecs_task_def" | jq --arg JWT_SECRET "${{ secrets.JWT_SECRET }}" \
+                                                          --arg JWT_ISSUER "${{ secrets.JWT_ISSUER }}" \
+                                                          --arg JWT_AUDIENCE "${{ secrets.JWT_AUDIENCE }}" \
+                                                          --arg RABBIT_HOST "${{ secrets.HOST_RABBIT }}" \
+                                                          --arg RABBIT_USERNAME "${{ secrets.USERNAME_RABBIT }}" \
+                                                          --arg RABBIT_PASSWORD "${{ secrets.PASSWORD_RABBIT }}" \
+                                                          --arg MAIL_CLIENT "${{ secrets.MAIL_CLIENT }}" \
+                                                          --arg MAIL_PORT "${{ secrets.MAIL_PORT }}" \
+                                                          --arg USER_EMAIL "${{ secrets.USER_EMAIL }}" \
+                                                          --arg PASSWORD_APP "${{ secrets.PASSWORD_APP }}" \
+                                                          '.containerDefinitions[0].environment |=
+                                                            map(
+                                                              if .name == "MAIL_CLIENT" then .value = $MAIL_CLIENT
+                                                              elif .name == "JWT_SECRET" then .value = $JWT_SECRET
+                                                              elif .name == "JWT_ISSUER" then .value = $JWT_ISSUER
+                                                              elif .name == "JWT_AUDIENCE" then .value = $JWT_AUDIENCE
+                                                              elif .name == "RABBIT_HOST" then .value = $RABBIT_HOST
+                                                              elif .name == "RABBIT_USERNAME" then .value = $RABBIT_USERNAME
+                                                              elif .name == "RABBIT_PASSWORD" then .value = $RABBIT_PASSWORD
+                                                              elif .name == "MAIL_PORT" then .value = $MAIL_PORT
+                                                              elif .name == "USER_EMAIL" then .value = $USER_EMAIL
+                                                              elif .name == "PASSWORD_APP" then .value = $PASSWORD_APP
+                                                              else .
+                                                              end
+                                                            )')
+              
+              echo "$ecs_task_def" > ecs_task_def_updated.json
+
+            env:
+              JWT_SECRET: ${{ secrets.JWT_SECRET }}
+              JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
+              JWT_AUDIENCE: ${{ secrets.JWT_AUDIENCE }}
+              HOST_RABBIT: ${{ secrets.HOST_RABBIT }}
+              USERNAME_RABBIT: ${{ secrets.USERNAME_RABBIT }}
+              PASSWORD_RABBIT: ${{ secrets.PASSWORD_RABBIT }}
+              MAIL_CLIENT: ${{ secrets.MAIL_CLIENT }}
+              MAIL_PORT: ${{ secrets.MAIL_PORT }}
+              USER_EMAIL: ${{ secrets.USER_EMAIL }}
+              PASSWORD_APP: ${{ secrets.PASSWORD_APP }}
+          
+          - name: Save Task Definition as Artifact
+            uses: actions/upload-artifact@v4
+            with:
+              name: ecs-task-definition
+              path: ecs_task_def_updated.json
+
+          - name: 🔑 Login to Amazon ECR
+            run: aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${{ secrets.REPOSITORY }}
+
+          - name: 📦 Publish Docker Image to Amazon ECR
+            working-directory: .
+            run: |
+              REPO="${{ secrets.REPOSITORY }}"
+    
+              if [[ -z "$REPO" ]]; then
+                echo "Error: secrets.REPOSITORY is empty or is not configured correctly"
+                exit 1
+              fi
+              
+              echo "Using repository: $REPO"
+
+              dotnet publish -c Release -r linux-x64 --self-contained false
+
+              if [ ! -f "Dockerfile" ]; then
+                echo "Error: Docker file not found in current directory."
+                exit 1
+              fi
+
+              docker build  \
+              --build-arg APISettings__JwtOptions__Secret="${{ secrets.JWT_SECRET }}" \
+              --build-arg APISettings__JwtOptions__Issuer="${{ secrets.JWT_ISSUER }}" \
+              --build-arg APISettings__JwtOptions__Audience="${{ secrets.JWT_AUDIENCE }}" \
+              --build-arg RabbitMQ__Host="${{ secrets.HOST_RABBIT }}" \
+              --build-arg RabbitMQ__Port="${{ secrets.PORT_RABBIT }}" \
+              --build-arg RabbitMQ__Username="${{ secrets.USERNAME_RABBIT }}" \
+              --build-arg RabbitMQ__Password="${{ secrets.PASSWORD_RABBIT }}" \
+              --build-arg mail__PORT="${{ secrets.MAIL_PORT }}" \
+              --build-arg mail__SMTP_CLIENT="${{ secrets.MAIL_CLIENT }}" \
+              --build-arg mail__USER_EMAIL="${{ secrets.USER_EMAIL }}" \
+              --build-arg mail__PASSWORD_APP="${{ secrets.PASSWORD_APP }}" \
+              -t  "$REPO:latest" .
+
+              docker run --rm $REPO:latest printenv
+              
+              docker push "$REPO:latest"
+    deploy:
+      needs: publish
+      if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+      runs-on: ubuntu-latest
+      steps:
+        - name: 🛠️ Checkout Repository
+          uses: actions/checkout@v4
+
+        - name: 🔐 Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-2
+        - name: Download Task Definition Artifact
+          uses: actions/download-artifact@v4
+          with:
+            name: ecs-task-definition
+                  
+        - name: List files to confirm task definition
+          run: ls -la
+
+        - name: 🚀 Deploy to Amazon ECS
+          uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+          with:
+            cluster: ESports
+            task-definition: ecs_task_def_updated.json
+            service: users-container
+            wait-for-service-stability: true
