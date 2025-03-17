@@ -183,5 +183,5 @@ jobs:
           with:
             cluster: ESports
             task-definition: ecs_task_def_updated.json
-            service: users-container
+            service: e-sports/notifications
             wait-for-service-stability: true
