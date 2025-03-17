@@ -6,9 +6,6 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>401482fc-3968-4ee6-bcd8-4a27b38d9127</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<ContainerImageTags>1.0.0;latest</ContainerImageTags>
-		<ContainerRepository>notificationsAndAlerts</ContainerRepository>
-		<PublishProfile>DefaultContainer</PublishProfile>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
